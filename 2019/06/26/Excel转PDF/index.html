@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="xzz&#39;s bolg">
 <meta property="og:description" content="前言搞了这么久的Java，也没搞出什么名堂，还是一个小白，这是我写的第一篇博客，翻来覆去想了一下，还是马马虎虎写个前言，正逢老板叫做一个Excel转pdf的功能，做这个功能的原因呢是因为由于目前是内部使用，并不能使用微软自带的api接口来预览上传的Excel，但是领导又发话了不能自己转成pdf上传然后预览（这样做太low，所以就诞生了这个功能需求，话不多说，下面就是我做Excel转pdf实现预览的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-26T03:13:16.637Z">
+<meta property="og:updated_time" content="2019-06-26T03:20:07.503Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSM项目中Excel转PDF记录">
 <meta name="twitter:description" content="前言搞了这么久的Java，也没搞出什么名堂，还是一个小白，这是我写的第一篇博客，翻来覆去想了一下，还是马马虎虎写个前言，正逢老板叫做一个Excel转pdf的功能，做这个功能的原因呢是因为由于目前是内部使用，并不能使用微软自带的api接口来预览上传的Excel，但是领导又发话了不能自己转成pdf上传然后预览（这样做太low，所以就诞生了这个功能需求，话不多说，下面就是我做Excel转pdf实现预览的">
@@ -301,99 +301,9 @@
       
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>搞了这么久的Java，也没搞出什么名堂，还是一个小白，这是我写的第一篇博客，翻来覆去想了一下，还是马马虎虎写个前言，正逢老板叫做一个Excel转pdf的功能，做这个功能的原因呢是因为由于目前是内部使用，并不能使用微软自带的api接口来预览上传的Excel，但是领导又发话了不能自己转成pdf上传然后预览（这样做太low，所以就诞生了这个功能需求，话不多说，下面就是我做Excel转pdf实现预览的全过程，是实现了上传Excel文档的同时就把文档转为pdf文件然后把pdf文件的存储位置存到服务器里，预览的时候直接从数据库拿地址进行预览</p>
 <h2 id="1-获取工具包"><a href="#1-获取工具包" class="headerlink" title="1.获取工具包"></a>1.获取工具包</h2><p>我首先在网上查找了各种的大佬们的思路，例子，但是都没有符合我的需求的，大部分都是直接取本地Excel进行转化然后预览，路径写死且都是固定的Excel，而我需要动态的将每个上传的Excel保留到本地然后将Excel转化为pdf生成新的pdf文件存到同级目录，但是我查看了大佬们比较简单的Excel转pdf的代码都用了一个<code>aspose-words-15.8.0-jdk16.jar</code>的工具包，于是我查了半天找到了maven的标签，但是发现下载失败，阿里云的镜像仓库没有这个包，海外的maven仓库下载失败，于是我只有从网上找了一个包下载到本地，把本地包导入maven使用，具体步骤请参考<a href="https://www.cnblogs.com/lixuwu/p/5855031.html" title="将本地jar包导入maven" target="_blank" rel="noopener">https://www.cnblogs.com/lixuwu/p/5855031.html</a> </p>
-<h2 id="2-配置"><a href="#2-配置" class="headerlink" title="2.配置"></a>2.配置</h2><h3 id="配置POM"><a href="#配置POM" class="headerlink" title="配置POM"></a>配置POM</h3><pre><code>&lt;repository&gt;
-     &lt;id&gt;AsposeJavaAPI&lt;/id&gt;
-     &lt;name&gt;Aspose Java API&lt;/name&gt;
-     &lt;url&gt;http://repository.aspose.com/repo/&lt;/url&gt;
-&lt;/repository&gt;</code></pre><h3 id="配置xml文件"><a href="#配置xml文件" class="headerlink" title="配置xml文件"></a>配置xml文件</h3><p>需要生成一个license.xml文件到resource目录下,下面是内容：</p>
-<pre><code>&lt;License&gt;
-    &lt;Data&gt;
-        &lt;Products&gt;
-            &lt;Product&gt;Aspose.Total for Java&lt;/Product&gt;
-            &lt;Product&gt;Aspose.Words for Java&lt;/Product&gt;
-        &lt;/Products&gt;
-        &lt;EditionType&gt;Enterprise&lt;/EditionType&gt;
-        &lt;SubscriptionExpiry&gt;20991231&lt;/SubscriptionExpiry&gt;
-        &lt;LicenseExpiry&gt;20991231&lt;/LicenseExpiry&gt;
-        &lt;SerialNumber&gt;8bfe198c-7f0c-4ef8-8ff0-acc3237bf0d7&lt;/SerialNumber&gt;
-    &lt;/Data&gt;
-    &lt;Signature&gt;sNLLKGMUdF0r8O1kKilWAGdgfs2BvJb/2Xp8p5iuDVfZXmhppo+d0Ran1P9TKdjV4ABwAgKXxJ3jcQTqE/2IRfqwnPf8itN8aFZlV3TJPYeD3yWE7IT55Gz6EijUpC7aKeoohTb4w2fpox58wWoF3SNp6sK6jDfiAUGEHYJ9pjU=&lt;/Signature&gt;
-&lt;/License&gt;</code></pre><h2 id="3-演示代码"><a href="#3-演示代码" class="headerlink" title="3.演示代码"></a>3.演示代码</h2><p>现在我们就已经完成了Excel转pdf的配置，可以开始转换了，我将Excel转pdf的工具类的代码贴在下方，这里使用异步转换，不阻塞主线程，异步一般执行一些比较耗时的操作，主线程可以直接返回 然后通过回调去拿结果（如果有</p>
-<pre><code>/**
- * 校验Aspose的License
- */
-private static Boolean getLicense() {
-    try {
-        InputStream license = UploadHelper.class.getClassLoader().getResourceAsStream(&quot;license.xml&quot;);
-        License aposeLic = new License();
-        aposeLic.setLicense(license);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return License.isLicenseSet();
-}
-
-@Async
-public void processExcelToPdf(String fileFullPath, String path) {
-    // 验证License 若不验证则转化出的pdf文档会有水印产生
-    if (!getLicense()) {
-        return;
-    }
-    try {
-        /*if (!path.endsWith(&quot;/&quot;)) {
-            path = path + &quot;/&quot;;
-        }*/
-        String pdfPath = path+&quot;/&quot;+ UUID.randomUUID().toString() + &quot;.pdf&quot;;
-        // 输出路径
-        File pdfFile = new File(&quot;X:/XX/&quot; + pdfPath);
-        // 原始excel路径
-        Workbook wb = new Workbook(&quot;X:/XX/&quot; + fileFullPath);
-        FileOutputStream fileOS = new FileOutputStream(pdfFile);
-        wb.save(fileOS, SaveFormat.PDF);
-        fileOS.close();
-        //将存放路径存入数据库
-        XXXService.save();
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-}</code></pre><p>下面是我controller的部分判断上传文件格式的代码：</p>
-<pre><code>/**
- * 上传文件
- */
-@PostMapping(&quot;/upload&quot;)
-//    @RequiresPermissions(&quot;sys:oss:all&quot;)
-public R upload(@RequestParam(&quot;file&quot;) MultipartFile file, @RequestParam(&quot;projectid&quot;) String projectid, @RequestParam(&quot;fromid&quot;)
-        String fromid, @RequestParam(&quot;type&quot;) String type, @RequestParam(&quot;studyinstanceuid&quot;) String studyinstanceuid) throws Exception {
-    projectid = projectid.substring(0, 4);
-    if (file.isEmpty()) {
-        throw new RRException(&quot;上传文件不能为空&quot;);
-    }
-
-    //上传文件
-    UploadHelper uploadHelper = new UploadHelper();
-    int fileType = 0;
-    //fileType=0时为未知文件，=1时为图片，pdf，=2时为Excel文件
-    String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(&quot;.&quot;));
-    if (&quot;.jpg&quot;.equals(suffix.toLowerCase()) || &quot;.png&quot;.equals(suffix.toLowerCase()) || &quot;.jpeg&quot;.equals(suffix.toLowerCase()) || &quot;.gif&quot;.equals(suffix.toLowerCase()) || &quot;.pdf&quot;.equals(suffix.toLowerCase())) {
-        fileType = 1;
-    } else if (&quot;.xlsx&quot;.equals(suffix.toLowerCase()) || &quot;xls&quot;.equals(suffix.toLowerCase())) {
-        fileType = 2;
-    }
-    if (fileType == 2){
-        boolean re = excelService.excelToPdf(file,filePath);
-        if (re){
-            return R.ok();
-        }else {
-            return R.error(&quot;转换错误，请联系管理员&quot;);
-        }
-    }
-    //下面是不是Excel文件正常的文件存储步骤
-    fileUtil.copy(xxx);
-    xxxService.save(xxx);
-    //利用封装的返回信息处理类返回给前端信息
-    return R.ok();
-}</code></pre>
+<h2 id="2-配置"><a href="#2-配置" class="headerlink" title="2.配置"></a>2.配置</h2><h3 id="配置POM"><a href="#配置POM" class="headerlink" title="配置POM"></a>配置POM</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">         &lt;id&gt;AsposeJavaAPI&lt;/id&gt;</span><br><span class="line">         &lt;name&gt;Aspose Java API&lt;/name&gt;</span><br><span class="line">         &lt;url&gt;http://repository.aspose.com/repo/&lt;/url&gt;</span><br><span class="line">    ```&lt;/repository&gt;</span><br><span class="line">### 配置xml文件 ###</span><br><span class="line">需要生成一个license.xml文件到resource目录下,下面是内容：</span><br><span class="line"></span><br><span class="line">	```&lt;License&gt;</span><br><span class="line">		    &lt;Data&gt;</span><br><span class="line">		        &lt;Products&gt;</span><br><span class="line">		            &lt;Product&gt;Aspose.Total for Java&lt;/Product&gt;</span><br><span class="line">		            &lt;Product&gt;Aspose.Words for Java&lt;/Product&gt;</span><br><span class="line">		        &lt;/Products&gt;</span><br><span class="line">		        &lt;EditionType&gt;Enterprise&lt;/EditionType&gt;</span><br><span class="line">		        &lt;SubscriptionExpiry&gt;20991231&lt;/SubscriptionExpiry&gt;</span><br><span class="line">		        &lt;LicenseExpiry&gt;20991231&lt;/LicenseExpiry&gt;</span><br><span class="line">		        &lt;SerialNumber&gt;8bfe198c-7f0c-4ef8-8ff0-acc3237bf0d7&lt;/SerialNumber&gt;</span><br><span class="line">		    &lt;/Data&gt;</span><br><span class="line">		    &lt;Signature&gt;sNLLKGMUdF0r8O1kKilWAGdgfs2BvJb/2Xp8p5iuDVfZXmhppo+d0Ran1P9TKdjV4ABwAgKXxJ3jcQTqE/2IRfqwnPf8itN8aFZlV3TJPYeD3yWE7IT55Gz6EijUpC7aKeoohTb4w2fpox58wWoF3SNp6sK6jDfiAUGEHYJ9pjU=&lt;/Signature&gt;</span><br><span class="line">		&lt;/License&gt;</span><br></pre></td></tr></table></figure></code></pre><h2 id="3-演示代码"><a href="#3-演示代码" class="headerlink" title="3.演示代码"></a>3.演示代码</h2><p>现在我们就已经完成了Excel转pdf的配置，可以开始转换了，我将Excel转pdf的工具类的代码贴在下方，这里使用异步转换，不阻塞主线程，异步一般执行一些比较耗时的操作，主线程可以直接返回 然后通过回调去拿结果（如果有</p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">    * 校验Aspose的License</span><br><span class="line">    */</span><br><span class="line">   private static Boolean getLicense() &#123;</span><br><span class="line">       try &#123;</span><br><span class="line">           InputStream license = UploadHelper.class.getClassLoader().getResourceAsStream(&quot;license.xml&quot;);</span><br><span class="line">           License aposeLic = new License();</span><br><span class="line">           aposeLic.setLicense(license);</span><br><span class="line">       &#125; catch (Exception e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br><span class="line">       return License.isLicenseSet();</span><br><span class="line">   &#125;</span><br><span class="line">	</span><br><span class="line">   @Async</span><br><span class="line">   public void processExcelToPdf(String fileFullPath, String path) &#123;</span><br><span class="line">       // 验证License 若不验证则转化出的pdf文档会有水印产生</span><br><span class="line">       if (!getLicense()) &#123;</span><br><span class="line">           return;</span><br><span class="line">       &#125;</span><br><span class="line">       try &#123;</span><br><span class="line">           /*if (!path.endsWith(&quot;/&quot;)) &#123;</span><br><span class="line">               path = path + &quot;/&quot;;</span><br><span class="line">           &#125;*/</span><br><span class="line">           String pdfPath = path+&quot;/&quot;+ UUID.randomUUID().toString() + &quot;.pdf&quot;;</span><br><span class="line">           // 输出路径</span><br><span class="line">           File pdfFile = new File(&quot;X:/XX/&quot; + pdfPath);</span><br><span class="line">           // 原始excel路径</span><br><span class="line">           Workbook wb = new Workbook(&quot;X:/XX/&quot; + fileFullPath);</span><br><span class="line">           FileOutputStream fileOS = new FileOutputStream(pdfFile);</span><br><span class="line">           wb.save(fileOS, SaveFormat.PDF);</span><br><span class="line">           fileOS.close();</span><br><span class="line">           //将存放路径存入数据库</span><br><span class="line">           XXXService.save();</span><br><span class="line">       &#125; catch (Exception e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></code></pre><p>下面是我controller的部分判断上传文件格式的代码：</p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">    * 上传文件</span><br><span class="line">    */</span><br><span class="line">   @PostMapping(&quot;/upload&quot;)</span><br><span class="line">//	@RequiresPermissions(&quot;sys:oss:all&quot;)</span><br><span class="line">   public R upload(@RequestParam(&quot;file&quot;) MultipartFile file, @RequestParam(&quot;projectid&quot;) String projectid, @RequestParam(&quot;fromid&quot;)</span><br><span class="line">           String fromid, @RequestParam(&quot;type&quot;) String type, @RequestParam(&quot;studyinstanceuid&quot;) String studyinstanceuid) throws Exception &#123;</span><br><span class="line">       projectid = projectid.substring(0, 4);</span><br><span class="line">       if (file.isEmpty()) &#123;</span><br><span class="line">           throw new RRException(&quot;上传文件不能为空&quot;);</span><br><span class="line">       &#125;</span><br><span class="line">	</span><br><span class="line">       //上传文件</span><br><span class="line">       UploadHelper uploadHelper = new UploadHelper();</span><br><span class="line">       int fileType = 0;</span><br><span class="line">       //fileType=0时为未知文件，=1时为图片，pdf，=2时为Excel文件</span><br><span class="line">       String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(&quot;.&quot;));</span><br><span class="line">       if (&quot;.jpg&quot;.equals(suffix.toLowerCase()) || &quot;.png&quot;.equals(suffix.toLowerCase()) || &quot;.jpeg&quot;.equals(suffix.toLowerCase()) || &quot;.gif&quot;.equals(suffix.toLowerCase()) || &quot;.pdf&quot;.equals(suffix.toLowerCase())) &#123;</span><br><span class="line">           fileType = 1;</span><br><span class="line">       &#125; else if (&quot;.xlsx&quot;.equals(suffix.toLowerCase()) || &quot;xls&quot;.equals(suffix.toLowerCase())) &#123;</span><br><span class="line">           fileType = 2;</span><br><span class="line">       &#125;</span><br><span class="line">       if (fileType == 2)&#123;</span><br><span class="line">           boolean re = excelService.excelToPdf(file,filePath);</span><br><span class="line">           if (re)&#123;</span><br><span class="line">               return R.ok();</span><br><span class="line">           &#125;else &#123;</span><br><span class="line">               return R.error(&quot;转换错误，请联系管理员&quot;);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">	//下面是不是Excel文件正常的文件存储步骤</span><br><span class="line">	fileUtil.copy(xxx);</span><br><span class="line">	xxxService.save(xxx);</span><br><span class="line">	//利用封装的返回信息处理类返回给前端信息</span><br><span class="line">	return R.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></code></pre>
       
     </div>
     
@@ -413,22 +323,6 @@ public R upload(@RequestParam(&quot;file&quot;) MultipartFile file, @RequestPara
       
       
 
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2019/06/25/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-          </div>
-        </div>
       
 
       
@@ -504,7 +398,7 @@ public R upload(@RequestParam(&quot;file&quot;) MultipartFile file, @RequestPara
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">1</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -541,7 +435,7 @@ public R upload(@RequestParam(&quot;file&quot;) MultipartFile file, @RequestPara
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-获取工具包"><span class="nav-number">2.</span> <span class="nav-text">1.获取工具包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-配置"><span class="nav-number">3.</span> <span class="nav-text">2.配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置POM"><span class="nav-number">3.1.</span> <span class="nav-text">配置POM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置xml文件"><span class="nav-number">3.2.</span> <span class="nav-text">配置xml文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-演示代码"><span class="nav-number">4.</span> <span class="nav-text">3.演示代码</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-获取工具包"><span class="nav-number">2.</span> <span class="nav-text">1.获取工具包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-配置"><span class="nav-number">3.</span> <span class="nav-text">2.配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#配置POM"><span class="nav-number">3.1.</span> <span class="nav-text">配置POM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-演示代码"><span class="nav-number">4.</span> <span class="nav-text">3.演示代码</span></a></li></ol></div>
             
 
           </div>

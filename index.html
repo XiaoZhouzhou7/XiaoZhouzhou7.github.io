@@ -252,7 +252,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/26/动态文件地址批量压缩下载/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/26/ZIPDownLoad/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xzz">
@@ -271,7 +271,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/26/动态文件地址批量压缩下载/" itemprop="url">SSM项目中实现动态地址后台自动压缩下载</a></h1>
+                <a class="post-title-link" href="/2019/06/26/ZIPDownLoad/" itemprop="url">SSM项目中实现动态地址后台自动压缩下载</a></h1>
         
 
         <div class="post-meta">
@@ -378,7 +378,7 @@
           <h1 id="原由"><a href="#原由" class="headerlink" title="原由"></a>原由</h1><p>一口气写了两篇总结文章，也没啥营养，只是记录一下自己解决需求的过程，这次的这个功能需求则是因为老板嫌我给别人拷数据是直接远程桌面到服务器找到需要拷贝的文件夹以后直接拖到移动硬盘里的这个方法太low了（我倒是觉得只要能用就ok，拷贝还蛮快的），所以叫我做一个只有我自己能用的下载功能（其他账号看不见下载按钮），还只给了2天时间完成，以前从来没做过文件下载功能，不过面向百度编程嘛，在百度看了各种大佬的实例后，发现大部分都是指定的压缩地址，多文件压缩是把指定要压缩的文件加入list压缩，生成了压缩文件以后再提供下载，这样肯定不满足我的需求，由于我需要下载的文件都是几百MB到几个G的，这样做反应太慢，后续删除生成的临时压缩文件我嫌太麻烦了，而且我只能提供文件夹地址，并不能提供具体每个文件的地址加入list压缩，所以我又另寻他法，融合了多位大佬的方法，自己弄出来了直接丢文件夹地址后台自动遍历扫描文件夹里的子文件夹和文件并保留原文件夹格式的压缩后直接输出压缩流下载（后来我发现用hutool的工具包里面自带方法能够直接丢文件夹地址压缩），并不会把压缩文件保留到本地服务器，这样就省得我还要再去写删除代码啦（就是懒）</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/06/26/动态文件地址批量压缩下载/#more" rel="contents">
+            <a class="btn" href="/2019/06/26/ZIPDownLoad/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -679,7 +679,7 @@
                   <span class="links-of-author-item">
                     <a href="http://weibo.com/18982419517" target="_blank" title="微博">
                       
-                        <i class="fa fa-fw fa-globe"></i>微博</a>
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
                   </span>
                 
             </div>
